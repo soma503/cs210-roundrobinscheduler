@@ -53,7 +53,7 @@ public:
     CircularDLL(T *data) {
         head = nullptr;
         length = 0;
-        insertProcess( data );
+        insert( data );
 
 
     }
@@ -64,7 +64,25 @@ public:
     }
 
     ~CircularDLL() {
+        Node<T> *next = head;
+//        do {
+//            next = curr->next;
+//            remove( curr );
+//            curr = next;
+//
+//        } while ( length > 0 );
+        for ( int i = 0; i < length; i++ ) {
+            Node<T> *curr = next;
+            next = curr->next;
+            remove( curr );
+        }
 
+
+
+    }
+    
+    Node<T> *getHead() {
+        return head;
     }
 
     int getLength() {
@@ -88,7 +106,7 @@ public:
 
     }
 
-    void insertProcess(T *data) {
+    void insert(T *data) {
         Node<T> *newNode = new Node<T>( data );
         if ( head == nullptr ) {
             head = newNode;
@@ -114,32 +132,7 @@ public:
 
     }
 
-    void insertProcess( Node<T> *newNode ) {
-        if ( head == nullptr ) {
-            head = newNode;
-            newNode->next = head;
-            newNode->prev = head;
-            length++;
-            return;
-        }
-
-        Node<T> *curr = head;
-        while ( curr->next != head ) { //while the next node is not equal to the head
-            curr = curr->next;
-        }
-        //set the newNode's values
-        newNode->prev = curr;
-        newNode->next = head;
-
-        //inserts newNode into circular doubly linked list.
-        curr->next = newNode;
-        head->prev = newNode;
-        length++;
-
-
-    }
-
-    void deleteProcess( Node<T> *node ) {
+    void remove( Node<T> *node ) {
 
         if (length == 0 ) return;
         if ( length == 1 ) head = nullptr;
@@ -155,28 +148,14 @@ public:
 
         length--;
 
-
     }
-
-    void removeElapsedProcesses() {
-        Node<T> *next = head;
-        int reps = length;
-
-        for ( int i = 0; i < reps; i++ ) {
-            Node<T> *curr = next;
-            next = curr->next; // if deletes head, curr->next becomes the head
-            if ( curr->data->totalTime <= 0 ) deleteProcess( curr );
-        }
-
-    }
-
 
     void stepProcesses() {
 
         Node<T> *curr = head;
 
         do {
-            curr->data->totalTime--;
+            curr->data->updateRunTime();
             curr = curr->next;
         } while ( curr != head );
 
@@ -212,19 +191,19 @@ public:
         cin >> quantumTime;
 
         cout << "\nPrepopulating processes...\n" << endl;
-        list.insertProcess( new Process("A", 10) );
-        list.insertProcess( new Process("B", 12) );
-        list.insertProcess( new Process("B", 12) );
-        list.insertProcess( new Process("C", 8) );
-        list.insertProcess( new Process("D", 5) );
-        list.insertProcess( new Process("E", 10) );
+        list.insert( new Process("A", 10) );
+        list.insert( new Process("B", 12) );
+        list.insert( new Process("B", 12) );
+        list.insert( new Process("C", 8) );
+        list.insert( new Process("D", 5) );
+        list.insert( new Process("E", 10) );
 
         list.print();
 
         while ( !list.isEmpty() ) {
 
             while ( newProcessPrompted() ) {
-                insertProcessFromUser();
+                insertFromUser();
             }
 
             runCycle();
@@ -234,7 +213,20 @@ public:
             list.print();
         }
 
+        cout << "Processes ended" << endl;
 
+
+    }
+
+    void removeElapsedProcesses() {
+        Node<Process> *next = list.getHead();
+        int reps = list.getLength();
+
+        for ( int i = 0; i < reps; i++ ) {
+            Node<Process> *curr = next;
+            next = curr->next; // if removes head, curr->next becomes the head
+            if ( curr->data->totalTime <= 0 ) list.remove( curr );
+        }
     }
 
     bool newProcessPrompted() {
@@ -247,7 +239,7 @@ public:
         return true;
     }
 
-    void insertProcessFromUser() {
+    void insertFromUser() {
         using namespace std;
 
         string processName;
@@ -258,7 +250,7 @@ public:
         cout << "Enter total process time: ";
         cin >> processTime;
 
-        list.insertProcess( new Process( processName, processTime ) );
+        list.insert( new Process( processName, processTime ) );
 
         cout << "\nProcess added." << endl;
 
@@ -275,28 +267,18 @@ public:
             list.stepProcesses();
         };
 
-        list.removeElapsedProcesses();
+        removeElapsedProcesses();
 
         cout << "After cycle " << cyclesElapsed << " - " << timeElapsed
             << " seconds elapses - state of processes is as follows " << endl;
 
     }
 
-
-
-
-
 };
 
 int main() {
-
-
     RoundRobinScheduler rrs = RoundRobinScheduler();
-    //test();
     rrs.run();
-
-
-
 
     return 0;
 }
