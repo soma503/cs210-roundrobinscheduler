@@ -207,7 +207,6 @@ public:
     }
 
     void stepProcesses() {
-
         Node<Process> *curr = list.getHead();
 
         do {
