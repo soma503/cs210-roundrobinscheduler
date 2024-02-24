@@ -150,18 +150,6 @@ public:
 
     }
 
-    void stepProcesses() {
-
-        Node<T> *curr = head;
-
-        do {
-            curr->data->updateRunTime();
-            curr = curr->next;
-        } while ( curr != head );
-
-
-    }
-
 
     bool isEmpty() {
         if ( length == 0 ) return true;
@@ -218,6 +206,18 @@ public:
 
     }
 
+    void stepProcesses() {
+
+        Node<Process> *curr = list.getHead();
+
+        do {
+            curr->data->updateRunTime();
+            curr = curr->next;
+        } while ( curr != list.getHead() );
+
+
+    }
+
     void removeElapsedProcesses() {
         Node<Process> *next = list.getHead();
         int reps = list.getLength();
@@ -264,7 +264,7 @@ public:
         cout << "\nRunning cycle " << cyclesElapsed << ".\n" << endl;
         timeElapsed += quantumTime;
         for (int i = 0; i < quantumTime; i++ ) {
-            list.stepProcesses();
+            stepProcesses();
         };
 
         removeElapsedProcesses();
